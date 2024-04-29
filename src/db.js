@@ -1,52 +1,52 @@
-const User = require('./models/user');
+// const User = require('./models/user');
 
-const register = async (user) => {
+// const register = async (user) => {
 
-    try { 
-        const { name, email, password } = user;
+//     try { 
+//         const { name, email, password } = user;
 
-        const existUser = await User.findOne({email: email});
+//         const existUser = await User.findOne({email: email});
 
-        if(existUser) { return null }
+//         if(existUser) { return null }
 
-        const newUser = new User({
-            name: name,
-            email: email,
-            password: password
-        });
+//         const newUser = new User({
+//             name: name,
+//             email: email,
+//             password: password
+//         });
 
-        await newUser.save();
+//         await newUser.save();
 
-        return newUser;
-    }
+//         return newUser;
+//     }
 
-    catch(error) { throw error; }
+//     catch(error) { throw error; }
     
-}
+// }
 
-const login = async (credentials) => {
+// const login = async (credentials) => {
 
-    try {
-        const { email, password } = credentials;
+//     try {
+//         const { email, password } = credentials;
 
-        const existsUser = await User.find({$and: [ { email: email}, { password: password} ]});
+//         const existsUser = await User.find({$and: [ { email: email}, { password: password} ]});
 
-        if(!existsUser) { return null;}
+//         if(!existsUser) { return null;}
 
-        const returnUser = existsUser.map((user) => {
-            return user.email
-        })
+//         const returnUser = existsUser.map((user) => {
+//             return user.email
+//         })
 
 
-        return returnUser;
-    }
+//         return returnUser;
+//     }
 
-    catch(error) { throw error; }
+//     catch(error) { throw error; }
     
 
-}
+// }
 
-module.exports = {
-    register,
-    login
-};
+// module.exports = {
+//     register,
+//     login
+// };
