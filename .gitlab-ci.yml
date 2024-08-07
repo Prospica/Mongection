@@ -26,11 +26,11 @@ build-image-and-push-to-dockerhub:
     only:
         - tags
     script:
-        - docker build . -t docker.io/prospica/mongection:$TAG -f deployments/mongection.Dockerfile
-        - docker build . -t docker.io/prospica/monggo-db:$TAG -f deployments/mongo.Dockerfile
-        - docker login --username=${DOCKER_USR} --password=${DOCKER_PSW} docker.io
-        - docker push docker.io/prospica/mongection:$TAG
-        - docker push docker.io/prospica/monggo-db:$TAG
+        - podman build . -t docker.io/prospica/mongection:$TAG -f deployments/mongection.Dockerfile
+        - podman build . -t docker.io/prospica/monggo-db:$TAG -f deployments/mongo.Dockerfile
+        - podman login --username=${DOCKER_USR} --password=${DOCKER_PSW} docker.io
+        - podman push docker.io/prospica/mongection:$TAG
+        - podman push docker.io/prospica/monggo-db:$TAG
 
 deploy-to-ocp:
     tags:
