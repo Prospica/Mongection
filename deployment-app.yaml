@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: container
-          image: 'docker.io/prospica/mongection:app-alpha-v1.0.0'
+          image: 'docker.io/prospica/mongection:alpha-v1.0.0'
           ports:
             - containerPort: 10001
               protocol: TCP
