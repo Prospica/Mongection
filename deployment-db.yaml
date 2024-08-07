@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mongection-db
-          image: 'docker.io/prospica/mongection:db-alpha-v1.0.0'
+          image: 'docker.io/prospica/monggo-db:alpha-v1.0.0'
           ports:
             - containerPort: 27017
               protocol: TCP
