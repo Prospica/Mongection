@@ -11,6 +11,7 @@ sonarqube-test:
     stage: sast 
     only:
         - tags
+        - manual
     when: manual
     script:
         - echo $TAG
