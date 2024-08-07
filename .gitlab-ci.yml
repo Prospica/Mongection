@@ -44,3 +44,49 @@ deploy-to-ocp:
         - oc login --token ${OCP_TOKEN} --server=https://api.dev.awankinton.my.id:6443 --insecure-skip-tls-verify
         - oc apply -f deployment-app.yaml
         - oc apply -f deployment-db.yaml
+
+dast-i3gis-run:
+    tags:
+        - shared
+    stage: dast
+    only:
+        - tags
+    script:
+        - echo "Scanning context 1 Context juice-shop FULL in site juice-shop with i3gis..."
+        - 'scanResponse=$(curl --write-out ''%{http_code}'' --request POST -sL --url ''https://api.i3gis.id/dast-svc/scan'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer e26vIaS7SWiF+MST3slhMSnSj85UeykS7oip8FI1xyGK1+fePRfuwGVJ+bQCDlA2ivDpKrDCS3YoQsOLbXzPkHJMCU3cbY0QxQ5eLFVsZ8vBbxngUxbqoLb432dSoiKWo3hu3e57OM0kdADQnh3yhw=='' --data ''{"context_id":29}'')'
+        - scanCode=$(echo $scanResponse | grep -o ...$)
+        - 'echo "HTTP response status code: $scanCode"'
+        - if [ $scanCode = "201" ]; then
+        - echo "Scan context 1 Context juice-shop FULL in site juice-shop with i3gis..."
+        - else
+        - 'echo "Response: $scanResponse"'
+        - echo "Build failed because scan not success..."
+        - exit 1
+        - fi
+        - echo "Scan context 1 Context juice-shop FULL in site juice-shop with i3gis is starting..."
+
+dast-i3gis-status:
+    tags:
+        - shared
+    stage: dast
+    only:
+        - tag
+    script:
+        - echo "Get scan status..."
+        - status_running=true
+        - while [ "$status_running" = true ]; do
+        - sleep 5
+        - echo "Scan still running..."
+        - 'checkResponse=$(curl --write-out ''%{http_code}'' --request GET -sL --url ''https://api.i3gis.id/dast-svc/context-integration/29'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer e26vIaS7SWiF+MST3slhMSnSj85UeykS7oip8FI1xyGK1+fePRfuwGVJ+bQCDlA2ivDpKrDCS3YoQsOLbXzPkHJMCU3cbY0QxQ5eLFVsZ8vBbxngUxbqoLb432dSoiKWo3hu3e57OM0kdADQnh3yhw=='')'
+        - checkCode=$(echo $checkResponse | grep -o ...$)
+        - 'echo "HTTP response status code: $checkCode"'
+        - if [ $checkCode != "200" ] && [ $checkCode != "404" ]; then
+        - 'echo "Response: $checkResponse"'
+        - echo "Scan failed..."
+        - exit 1
+        - fi
+        - if [ $checkCode = "404" ]; then
+        - echo "Scan finished..."
+        - status_running=false
+        - fi
+        - done
