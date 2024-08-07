@@ -15,9 +15,8 @@ sonarqube-test:
     stage: sast 
     only:
         - tags
-        - branches
     script:
-        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=${SONAR_TOKEN} -Dsonar.sources=. -Dsonar.qualitygate.wait=true
+        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token={SONAR_TOKEN -Dsonar.sources=. -Dsonar.qualitygate.wait=true
     allow_failure: true
     
 build-image-and-push-to-dockerhub:
@@ -26,7 +25,6 @@ build-image-and-push-to-dockerhub:
     stage: build
     only:
         - tags
-    when: manual
     script:
         - docker build . -t docker.io/prospica/mongection:$TAG -f deployments/mongection.Dockerfile
         - docker build . -t docker.io/prospica/monggo-db:$TAG -f deployments/mongo.Dockerfile
@@ -40,7 +38,6 @@ deploy-to-ocp:
     stage: deploy
     only:
         - tags
-    when: manual
     script:
         - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
         - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
