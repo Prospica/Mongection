@@ -16,7 +16,7 @@ sonarqube-test:
     only:
         - tags
     script:
-        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=SONAR_TOKEN -Dsonar.sources=. -Dsonar.qualitygate.wait=true
+        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=$SONAR_TOKEN -Dsonar.sources=. -Dsonar.qualitygate.wait=true
     allow_failure: true
     
 build-image-and-push-to-dockerhub:
