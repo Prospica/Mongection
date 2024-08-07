@@ -1,43 +1,95 @@
-# This file is a template, and might need editing before it works on your project.
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
-#
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
-#
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-#
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+variables:
+    TAG: $CI_COMMIT_TAG
+stages:          
+    - sast
+    - build
+    - deploy
+    - dast
 
-stages:          # List of stages for jobs, and their order of execution
-  - build
-  - test
-  - deploy
+sonarqube-test:
+    tags:
+        - shared
+    rules:
+        - if: $CI_COMMIT_TAG =~ /^alpha/i
+    stage: sast 
+    before_script:
+        - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
+        - if [ $VER == "alpha" ]; then export BRANCH=dev; fi
+        - if [ $VER == "live" ]; then export BRANCH=main; fi 
+    script:
+        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=$SONAR_TOKEN -Dsonar.sources=src/ -Dsonar.qualitygate.wait=true
+    allow_failure: true
+    
+build-image-and-push-to-dockerhub:
+    tags:
+        - shared
+    stage: build
+    only:
+        - tags
+    script:
+        - podman build . -t docker.io/prospica/mongection:$TAG -f deployments/mongection.Dockerfile
+        - podman build . -t docker.io/prospica/monggo-db:$TAG -f deployments/mongo.Dockerfile
+        - podman login --username=${DOCKER_USR} --password=${DOCKER_PSW} docker.io
+        - podman push docker.io/prospica/mongection:$TAG
+        - podman push docker.io/prospica/monggo-db:$TAG
 
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
-  script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+deploy-to-ocp:
+    tags:
+        - shared
+    stage: deploy
+    only:
+        - tags
+    before_script:
+        - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
+    script:
+        - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
+        - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
+        - oc login --token ${OCP_TOKEN} --server=https://api.dev.awankinton.my.id:6443 --insecure-skip-tls-verify
+        - oc apply -f deployment-app.yaml
+        - oc apply -f deployment-db.yaml
 
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
+dast-i3gis-run:
+    tags:
+        - shared
+    stage: dast
+    only:
+        - tags
+    script:
+        - echo "Scanning context 13 Context mongection FULL in site mongection with i3gis..."
+        - 'scanResponse=$(curl --write-out ''%{http_code}'' --request POST -sL --url ''https://api.i3gis.id/dast-svc/scan'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer xqdiIzwZ7iVfWQ9s6ngGt7LdAaFOI73R9DOYFGVNdnJMx/HMUjeKCTtE10oRFh78XOvXQZ4Fp7JKulTNKXm+9BGqVSAqWzzUb/8ZlI6s/gew40EB+kXgty9H85XNdhTpvW0CQcYhQgS349XraKRPYg=='' --data ''{"context_id":106}'')'
+        - scanCode=$(echo $scanResponse | grep -o ...$)
+        - 'echo "HTTP response status code: $scanCode"'
+        - if [ $scanCode = "201" ]; then
+        - echo "Scan context 13 Context mongection FULL in site mongection with i3gis..."
+        - else
+        - 'echo "Response: $scanResponse"'
+        - echo "Build failed because scan not success..."
+        - exit 1
+        - fi
+        - echo "Scan context 13 Context mongection FULL in site mongection with i3gis is starting..."
 
-
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
-  script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+dast-i3gis-status:
+    tags:
+        - shared
+    stage: dast
+    only:
+        - tags
+    script:
+        - echo "Get scan status..."
+        - status_running=true
+        - while [ "$status_running" = true ]; do
+        - sleep 5
+        - echo "Scan still running..."
+        - 'checkResponse=$(curl --write-out ''%{http_code}'' --request GET -sL --url ''https://api.i3gis.id/dast-svc/context-integration/106'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer xqdiIzwZ7iVfWQ9s6ngGt7LdAaFOI73R9DOYFGVNdnJMx/HMUjeKCTtE10oRFh78XOvXQZ4Fp7JKulTNKXm+9BGqVSAqWzzUb/8ZlI6s/gew40EB+kXgty9H85XNdhTpvW0CQcYhQgS349XraKRPYg=='')'
+        - checkCode=$(echo $checkResponse | grep -o ...$)
+        - 'echo "HTTP response status code: $checkCode"'
+        - if [ $checkCode != "200" ] && [ $checkCode != "404" ]; then
+        - 'echo "Response: $checkResponse"'
+        - echo "Scan failed..."
+        - exit 1
+        - fi
+        - if [ $checkCode = "404" ]; then
+        - echo "Scan finished..."
+        - status_running=false
+        - fi
+        - done
