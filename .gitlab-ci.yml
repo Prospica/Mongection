@@ -9,9 +9,9 @@ stages:
 sonarqube-test:
     tags:
         - shared
+    rules:
+        - if: '$CI_COMMIT_TAG =~ "^alpha"'
     stage: sast 
-    only:
-        - tags
     before_script:
         - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
         - if [ $VER == "alpha" ]; then export BRANCH=dev; fi
