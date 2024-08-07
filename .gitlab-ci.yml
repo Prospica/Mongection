@@ -2,6 +2,8 @@ variables:
     BRANCH: dev
     TAG: $CI_COMMIT_TAG
     VER: alpha
+    SONAR_TOKEN: $SONAR_TOKEN
+    
 stages:          
     - sast
     - build
