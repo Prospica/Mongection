@@ -1,8 +1,5 @@
 variables:
-    BRANCH: dev
     TAG: $CI_COMMIT_TAG
-    VER: alpha
-
 stages:          
     - sast
     - build
@@ -15,8 +12,12 @@ sonarqube-test:
     stage: sast 
     only:
         - tags
+    before_script:
+        - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
+        - if [ $VER == "alpha" ]; then export BRANCH=dev; fi
+        - if [ $VER == "live" ]; then export BRANCH=main; fi 
     script:
-        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=$SONAR_TOKEN -Dsonar.sources=. -Dsonar.qualitygate.wait=true
+        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=$SONAR_TOKEN -Dsonar.sources=src/ -Dsonar.qualitygate.wait=true
     allow_failure: true
     
 build-image-and-push-to-dockerhub:
@@ -38,6 +39,8 @@ deploy-to-ocp:
     stage: deploy
     only:
         - tags
+    before_script:
+        - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
     script:
         - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
         - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
