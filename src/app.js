@@ -44,9 +44,8 @@ server.post("/login", async (request, response) => {
         console.log(user.length)
 
         if(user.length == 0) { response.send('Bad Credentials'); }
-        else{
-            response.send("<h1>Hello, Welcome Again!</h1><h3>" + user + "</h3>");
-        }
+
+        response.send("<h1>Hello, Welcome Again!</h1><h3>" + user + "</h3>");
     }
    
     catch(error) { throw error; }
@@ -67,9 +66,8 @@ server.post("/register", async (request, response) => {
             const user = await db.register({name, email, password});
 
             if(!user) { response.send('User Already Exists'); }
-            else{
-                response.send("<h1>Welcome to Mongection System</h1><h3>" + user.email + "</h3>");
-            }
+
+            response.send("<h1>Welcome to Mongection System</h1><h3>" + user.email + "</h3>");
         }
         
     }
@@ -78,7 +76,7 @@ server.post("/register", async (request, response) => {
 
 });
 
-mongoose.connect(`mongodb://${process.env.DBUSER}:${process.env.DBPASS}@mongo.mongection.svc:27017/mongection`, {useNewUrlParser: true})
+mongoose.connect(`mongodb://${process.env.DBUSER}:${process.env.DBPASS}@mongo:27017/mongection`, {useNewUrlParser: true})
     .then( () => {
         console.log('Server Running at port: ' + PORT);
 
