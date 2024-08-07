@@ -8,6 +8,8 @@ stages:
     - dast
 
 sonarqube-test:
+    tags:
+        - shared
     stage: sast 
     only:
         - tags
