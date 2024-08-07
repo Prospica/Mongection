@@ -44,8 +44,9 @@ server.post("/login", async (request, response) => {
         console.log(user.length)
 
         if(user.length == 0) { response.send('Bad Credentials'); }
-
-        response.send("<h1>Hello, Welcome Again!</h1><h3>" + user + "</h3>");
+        else{
+            response.send("<h1>Hello, Welcome Again!</h1><h3>" + user + "</h3>");
+        }
     }
    
     catch(error) { throw error; }
@@ -66,8 +67,9 @@ server.post("/register", async (request, response) => {
             const user = await db.register({name, email, password});
 
             if(!user) { response.send('User Already Exists'); }
-
-            response.send("<h1>Welcome to Mongection System</h1><h3>" + user.email + "</h3>");
+            else{
+                response.send("<h1>Welcome to Mongection System</h1><h3>" + user.email + "</h3>");
+            }
         }
         
     }
