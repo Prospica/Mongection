@@ -52,18 +52,18 @@ dast-i3gis-run:
     only:
         - tags
     script:
-        - echo "Scanning context 1 Context mongection FULL in site mongection with i3gis..."
-        - 'scanResponse=$(curl --write-out ''%{http_code}'' --request POST -sL --url ''https://api.i3gis.id/dast-svc/scan'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer FYdjwMY+auP/fG9hXyAhHwuj/U6GmMVwZHJ5ovJiuorQ593KO0baTLH4fq2na+7/O1PpufacxZNek62oTLUdmHNED/Z2sZZJBuscYDr1fBZuRnaVeiRcNdbDLyJyJtAJphn7eUOq+L9iD//8ooQrAQ=='' --data ''{"context_id":104}'')'
+        - echo "Scanning context 13 Context mongection FULL in site mongection with i3gis..."
+        - 'scanResponse=$(curl --write-out ''%{http_code}'' --request POST -sL --url ''https://api.i3gis.id/dast-svc/scan'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer xqdiIzwZ7iVfWQ9s6ngGt7LdAaFOI73R9DOYFGVNdnJMx/HMUjeKCTtE10oRFh78XOvXQZ4Fp7JKulTNKXm+9BGqVSAqWzzUb/8ZlI6s/gew40EB+kXgty9H85XNdhTpvW0CQcYhQgS349XraKRPYg=='' --data ''{"context_id":106}'')'
         - scanCode=$(echo $scanResponse | grep -o ...$)
         - 'echo "HTTP response status code: $scanCode"'
         - if [ $scanCode = "201" ]; then
-        - echo "Scan context 1 Context mongection FULL in site mongection with i3gis..."
+        - echo "Scan context 13 Context mongection FULL in site mongection with i3gis..."
         - else
         - 'echo "Response: $scanResponse"'
         - echo "Build failed because scan not success..."
         - exit 1
         - fi
-        - echo "Scan context 1 Context mongection FULL in site mongection with i3gis is starting..."
+        - echo "Scan context 13 Context mongection FULL in site mongection with i3gis is starting..."
 
 dast-i3gis-status:
     tags:
@@ -77,7 +77,7 @@ dast-i3gis-status:
         - while [ "$status_running" = true ]; do
         - sleep 5
         - echo "Scan still running..."
-        - 'checkResponse=$(curl --write-out ''%{http_code}'' --request GET -sL --url ''https://api.i3gis.id/dast-svc/context-integration/104'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer FYdjwMY+auP/fG9hXyAhHwuj/U6GmMVwZHJ5ovJiuorQ593KO0baTLH4fq2na+7/O1PpufacxZNek62oTLUdmHNED/Z2sZZJBuscYDr1fBZuRnaVeiRcNdbDLyJyJtAJphn7eUOq+L9iD//8ooQrAQ=='')'
+        - 'checkResponse=$(curl --write-out ''%{http_code}'' --request GET -sL --url ''https://api.i3gis.id/dast-svc/context-integration/106'' --header ''Content-Type: application/json'' --header ''Authorization: Bearer xqdiIzwZ7iVfWQ9s6ngGt7LdAaFOI73R9DOYFGVNdnJMx/HMUjeKCTtE10oRFh78XOvXQZ4Fp7JKulTNKXm+9BGqVSAqWzzUb/8ZlI6s/gew40EB+kXgty9H85XNdhTpvW0CQcYhQgS349XraKRPYg=='')'
         - checkCode=$(echo $checkResponse | grep -o ...$)
         - 'echo "HTTP response status code: $checkCode"'
         - if [ $checkCode != "200" ] && [ $checkCode != "404" ]; then
