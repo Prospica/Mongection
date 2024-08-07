@@ -70,7 +70,7 @@ dast-i3gis-status:
         - shared
     stage: dast
     only:
-        - tag
+        - tags
     script:
         - echo "Get scan status..."
         - status_running=true
