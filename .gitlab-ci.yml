@@ -15,7 +15,7 @@ sonarqube-test:
     only:
         - tags
     script:
-        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=$SONAR_TOKEN -Dsonar.sources=. -Dsonar.qualitygate.wait=true
+        - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=${SONAR_TOKEN} -Dsonar.sources=. -Dsonar.qualitygate.wait=true
     allow_failure: true
     
 build-image-and-push-to-dockerhub:
@@ -28,7 +28,7 @@ build-image-and-push-to-dockerhub:
     script:
         - docker build . -t docker.io/prospica/mongection:$TAG -f deployments/mongection.Dockerfile
         - docker build . -t docker.io/prospica/monggo-db:$TAG -f deployments/mongo.Dockerfile
-        - docker login --username=$DOCKER_USR --password=$DOCKER_PSW docker.io
+        - docker login --username=${DOCKER_USR} --password=${DOCKER_PSW} docker.io
         - docker push docker.io/prospica/mongection:$TAG
         - docker push docker.io/prospica/monggo-db:$TAG
 
@@ -42,6 +42,6 @@ deploy-to-ocp:
     script:
         - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
         - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
-        - oc login --token $OCP_TOKEN --server=https://api.dev.awankinton.my.id:6443 --insecure-skip-tls-verify
+        - oc login --token ${OCP_TOKEN} --server=https://api.dev.awankinton.my.id:6443 --insecure-skip-tls-verify
         - oc apply -f deployment-app.yaml
         - oc apply -f deployment-db.yaml
