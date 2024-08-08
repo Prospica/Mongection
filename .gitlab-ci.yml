@@ -18,7 +18,7 @@ sonarqube-test:
         - if [ $VER == "live" ]; then export BRANCH=main; fi 
     script:
         - /opt/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=http://10.8.60.44:9000/ -Dsonar.branch.name=$BRANCH -Dsonar.projectName=Mongection-TSEL -Dsonar.projectKey=mongection-tsel -Dsonar.token=$SONAR_TOKEN -Dsonar.sources=src/ -Dsonar.qualitygate.wait=true
-    allow_failure: true
+    allow_failure: false
     
 build-image-and-push-to-dockerhub:
     tags:
