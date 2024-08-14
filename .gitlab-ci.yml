@@ -9,6 +9,10 @@ stages:
 include:
   - template: Jobs/SAST.gitlab-ci.yml
 
+sast:
+  tags:
+      - shared
+  stage: sast
 # sonarqube-test:
 #     tags:
 #         - shared
