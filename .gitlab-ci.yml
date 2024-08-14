@@ -2,7 +2,6 @@ variables:
     TAG: $CI_COMMIT_TAG
 stages:          
     - sast
-    - test
     - build
     - deploy
     - dast
@@ -13,14 +12,16 @@ include:
 semgrep-sast:
   rules:
       - if: $CI_COMMIT_TAG =~ /^alpha/i
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 nodejs-scan-sast:
   rules:
       - if: $CI_COMMIT_TAG =~ /^alpha/i
+      - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 sast:
   tags:
       - docker
-  stage: test
+  stage: sast
 # sonarqube-test:
 #     tags:
 #         - shared
