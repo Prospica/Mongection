@@ -1,5 +1,6 @@
 variables:
     TAG: $CI_COMMIT_TAG
+    SEARCH_MAX_DEPTH: 10
 stages:          
     - sast
     - build
