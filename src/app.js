@@ -78,7 +78,7 @@ server.post("/register", async (request, response) => {
 
 });
 
-mongoose.connect(`mongodb://${process.env.DBUSER}:${process.env.DBPASS}@mongection_db:27018/mongection`, {useNewUrlParser: true})
+mongoose.connect(`mongodb://${process.env.DBUSER}:${process.env.DBPASS}@mongection_db:27017/mongection`, {useNewUrlParser: true})
     .then( () => {
         console.log('Server Running at port: ' + PORT);
 
