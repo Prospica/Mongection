@@ -1,3 +1,5 @@
+## For Live version, Web port at 10001 and DB port at 27017
+## For Dev version, Web port at 10002 dan DB port at 27018
 # Mongection
 
 <p align="center"><img  src="images/a1-banner.png"/></p>
