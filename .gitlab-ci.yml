@@ -1,0 +1,77 @@
+variables:
+    TAG: $CI_COMMIT_TAG
+stages:          
+    - security-test
+    - build
+    - deploy
+
+sast:
+    tags:
+        - datadog
+    rules:
+        - if: $CI_COMMIT_TAG =~ /^alpha/i
+    stage: security-test 
+    before_script:
+        - export DD_SITE="us5.datadoghq.com"
+        - export DD_API_KEY=2adf38efb834bf73a62df0f71d8e3588
+        - export DD_APP_KEY=3aa5383586c349edf8e30595a0f600b8746728f6
+    script:
+        - /usr/local/datadog-static-analyzer -i . -o /home/gitlab-runner/report.sarif -f sarif
+        - datadog-ci sarif upload /home/gitlab-runner/report.sarif
+
+sca:
+    tags:
+        - datadog
+    rules:
+        - if: $CI_COMMIT_TAG =~ /^alpha/i
+    stage: security-test 
+    before_script:
+        - export DD_SITE="us5.datadoghq.com"
+        - export DD_API_KEY=2adf38efb834bf73a62df0f71d8e3588
+        - export DD_APP_KEY=3aa5383586c349edf8e30595a0f600b8746728f6
+    script:
+        - /osv-scanner/osv-scanner --skip-git -r --experimental-only-packages --format=cyclonedx-1-5 --paths-relative-to-scan-dir  --output=/home/gitlab-runner/sbom.json .
+        - datadog-ci sbom upload /home/gitlab-runner/sbom.json
+
+quality-gate:
+    tags:
+        - datadog
+    rules:
+        - if: $CI_COMMIT_TAG =~ /^alpha/i
+    stage: security-test
+    needs: ["sast", "sca"]
+    before_script:
+        - export DD_SITE="us5.datadoghq.com"
+        - export DD_API_KEY=2adf38efb834bf73a62df0f71d8e3588
+        - export DD_APP_KEY=3aa5383586c349edf8e30595a0f600b8746728f6
+    script:
+        - datadog-ci gate evaluate
+# build-image-and-push-to-dockerhub:
+#     tags:
+#         - shared
+#     stage: build
+#     only:
+#         - tags
+#     script:
+#         - podman build . -t docker.io/prospica/mongection:$TAG -f deployments/mongection.Dockerfile
+#         - podman build . -t docker.io/prospica/monggo-db:$TAG -f deployments/mongo.Dockerfile
+#         - podman login --username=${DOCKER_USR} --password=${DOCKER_PSW} docker.io
+#         - podman push docker.io/prospica/mongection:$TAG
+#         - podman push docker.io/prospica/monggo-db:$TAG
+
+# deploy-to-ocp:
+#     tags:
+#         - shared
+#     stage: deploy
+#     only:
+#         - tags
+#     before_script:
+#         - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
+#     script:
+#         - sed -i "s/alpha-.*/$TAG'/" deployment-app.yaml
+#         - sed -i "s/alpha-.*/$TAG'/" deployment-db.yaml
+#         - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
+#         - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
+#         - oc login --token ${OCP_TOKEN} --server=https://api.dev.awankinton.my.id:6443 --insecure-skip-tls-verify
+#         - oc apply -f deployment-app.yaml
+#         - oc apply -f deployment-db.yaml
