@@ -56,7 +56,7 @@ build-and-push-image:
     script:
         - docker build . -t registry.i-3.my.id:5500/mongection/app:$TAG -f deployments/mongection.Dockerfile
         - docker build . -t registry.i-3.my.id:5500/mongection/db-mongo:$TAG -f deployments/mongo.Dockerfile
-        - docker login --username=$nexusUSR --password=$nexusPSW registry.i-3.my.id:5500
+        - docker login --username=$NEXUS_USR --password=$NEXUS_PSW registry.i-3.my.id:5500
         - docker push registry.i-3.my.id:5500/mongection/app:$TAG
         - docker push registry.i-3.my.id:5500/mongection/db-mongo:$TAG
 
