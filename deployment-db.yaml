@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: mongection-db
-          image: 'docker.io/prospica/monggo-db:alpha-v1.0.0'
+          image: 'registry.i-3.my.id:5500/mongection/mongection-db:ocp-v1.0.0'
           ports:
             - containerPort: 27017
               protocol: TCP
@@ -24,10 +24,14 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
+          securityContext:
+            runAsUser: 1002
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
       securityContext: {}
+      imagePullSecrets:
+        - name: registry-i3
       schedulerName: default-scheduler
   strategy:
     type: RollingUpdate
