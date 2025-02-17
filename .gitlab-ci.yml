@@ -46,32 +46,33 @@ quality-gate:
         - export DD_APP_KEY=3aa5383586c349edf8e30595a0f600b8746728f6
     script:
         - datadog-ci gate evaluate
-# build-image-and-push-to-dockerhub:
-#     tags:
-#         - shared
-#     stage: build
-#     only:
-#         - tags
-#     script:
-#         - podman build . -t docker.io/prospica/mongection:$TAG -f deployments/mongection.Dockerfile
-#         - podman build . -t docker.io/prospica/monggo-db:$TAG -f deployments/mongo.Dockerfile
-#         - podman login --username=${DOCKER_USR} --password=${DOCKER_PSW} docker.io
-#         - podman push docker.io/prospica/mongection:$TAG
-#         - podman push docker.io/prospica/monggo-db:$TAG
+        
+build-and-push-image:
+    tags:
+        - datadog
+    stage: build
+    only:
+        - tags
+    script:
+        - docker build . -t registry.i-3.my.id:5500/mongection/app:$TAG -f deployments/mongection.Dockerfile
+        - docker build . -t registry.i-3.my.id:5500/mongection/db-mongo:$TAG -f deployments/mongo.Dockerfile
+        - docker login --username=$nexusUSR --password=$nexusPSW registry.i-3.my.id:5500
+        - docker push registry.i-3.my.id:5500/mongection/app:$TAG
+        - docker push registry.i-3.my.id:5500/mongection/db-mongo:$TAG
 
-# deploy-to-ocp:
-#     tags:
-#         - shared
-#     stage: deploy
-#     only:
-#         - tags
-#     before_script:
-#         - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
-#     script:
-#         - sed -i "s/alpha-.*/$TAG'/" deployment-app.yaml
-#         - sed -i "s/alpha-.*/$TAG'/" deployment-db.yaml
-#         - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
-#         - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
-#         - oc login --token ${OCP_TOKEN} --server=https://api.dev.awankinton.my.id:6443 --insecure-skip-tls-verify
-#         - oc apply -f deployment-app.yaml
-#         - oc apply -f deployment-db.yaml
+deploy-to-ocp:
+    tags:
+        - shared
+    stage: deploy
+    only:
+        - tags
+    before_script:
+        - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
+    script:
+        - sed -i "s/alpha-.*/$TAG'/" deployment-app.yaml
+        - sed -i "s/alpha-.*/$TAG'/" deployment-db.yaml
+        # - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
+        # - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
+        - oc login --token ${OCP_TOKEN} --server=https://api.lab.i-3.my.id:6443 --insecure-skip-tls-verify
+        - oc apply -f deployment-app.yaml
+        - oc apply -f deployment-db.yaml
