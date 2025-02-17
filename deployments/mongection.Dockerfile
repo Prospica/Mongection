@@ -6,4 +6,4 @@ RUN apt-get update && \
     npm install && \
     npm install dd-trace
 
-CMD node src/app.js
+CMD node --require dd-trace/init src/app.js
