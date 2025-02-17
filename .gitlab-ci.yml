@@ -9,7 +9,7 @@ sast:
     tags:
         - datadog
     rules:
-        - if: $CI_COMMIT_TAG =~ /^alpha/i
+        - if: $CI_COMMIT_TAG =~ /^ocp/i
     stage: security-test 
     before_script:
         - export DD_SITE="us5.datadoghq.com"
@@ -23,7 +23,7 @@ sca:
     tags:
         - datadog
     rules:
-        - if: $CI_COMMIT_TAG =~ /^alpha/i
+        - if: $CI_COMMIT_TAG =~ /^ocp/i
     stage: security-test 
     before_script:
         - export DD_SITE="us5.datadoghq.com"
@@ -37,7 +37,7 @@ quality-gate:
     tags:
         - datadog
     rules:
-        - if: $CI_COMMIT_TAG =~ /^alpha/i
+        - if: $CI_COMMIT_TAG =~ /^ocp/i
     stage: security-test
     needs: ["sast", "sca"]
     before_script:
@@ -69,8 +69,8 @@ deploy-to-ocp:
     before_script:
         - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
     script:
-        - sed -i "s/alpha-.*/$TAG'/" deployment-app.yaml
-        - sed -i "s/alpha-.*/$TAG'/" deployment-db.yaml
+        - sed -i "s/ocp-.*/$TAG'/" deployment-app.yaml
+        - sed -i "s/ocp-.*/$TAG'/" deployment-db.yaml
         # - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
         # - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
         - oc login --token ${OCP_TOKEN} --server=https://api.lab.i-3.my.id:6443 --insecure-skip-tls-verify
