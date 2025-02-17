@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: container
-          image: 'docker.io/prospica/mongection:alpha-v1.0.0'
+          image: 'registry.i-3.my.id:5500/mongection/mongection-app:ocp-v1.0.0'
           ports:
             - containerPort: 10001
               protocol: TCP
@@ -33,6 +33,8 @@ spec:
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
       securityContext: {}
+      imagePullSecrets:
+        - name: registry-i3
       schedulerName: default-scheduler
   strategy:
     type: RollingUpdate
