@@ -72,8 +72,8 @@ deploy-to-ocp:
     before_script:
         - export VER=$(echo $CI_COMMIT_TAG | grep -P '^[^-]*' -o)
     script:
-        - sed -i "s/ocp-.*/$TAG'/" deployment-app.yaml
-        - sed -i "s/ocp-.*/$TAG'/" deployment-db.yaml
+        - sed -i "s/ocp-[^']*/$TAG/" deployment-app.yaml
+        - sed -i "s/ocp-[^']*/$TAG/" deployment-db.yaml
         # - sed -i "s/$VER-.*/$TAG'/" deployment-app.yaml
         # - sed -i "s/$VER-.*/$TAG'/" deployment-db.yaml
         - oc login --token $OCP_TOKEN --server=https://api.lab.i-3.my.id:6443 --insecure-skip-tls-verify
