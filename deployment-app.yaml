@@ -31,6 +31,10 @@ spec:
             - containerPort: 10001
               protocol: TCP
           env:
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: DBUSER
               value: mongection
             - name: DBPASS
