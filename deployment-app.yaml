@@ -3,6 +3,10 @@ apiVersion: apps/v1
 metadata:
   name: mongection-app
   namespace: mongection
+  labels:
+    tags.datadoghq.com/env: sit
+    tags.datadoghq.com/service: mongection
+    tags.datadoghq.com/version: ocp-v1.0.0
 spec:
   replicas: 1
   selector:
@@ -13,6 +17,12 @@ spec:
       creationTimestamp: null
       labels:
         app: mongection-app
+        tags.datadoghq.com/env: sit
+        tags.datadoghq.com/service: mongection
+        tags.datadoghq.com/version: ocp-v1.0.0
+        admission.datadoghq.com/enabled: "true"
+      annotations:
+        admission.datadoghq.com/js-lib.version: v5.37.0
     spec:
       containers:
         - name: container
@@ -25,6 +35,18 @@ spec:
               value: mongection
             - name: DBPASS
               value: mongection
+            - name: DD_PROFILING_ENABLED
+              value: "true"
+            - name: DD_LOGS_INJECTION
+              value: "true"
+            - name: DD_APPSEC_ENABLED
+              value: "true"
+            - name: DD_IAST_ENABLED
+              value: "true"
+            - name: DD_APPSEC_SCA_ENABLED
+              value: "true"
+            - name: DD_TRACE_SAMPLE_RATE
+              value: "1"
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
