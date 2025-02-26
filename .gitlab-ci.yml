@@ -6,52 +6,26 @@ stages:
     - deploy
 
 sast:
-    tags:
-        - datadog
     rules:
         - if: $CI_COMMIT_TAG =~ /^ocp/i
     stage: security-test 
-    before_script:
-        - export DD_SITE="us5.datadoghq.com"
-        - export DD_API_KEY=$DATADOG_API_KEY
-        - export DD_APP_KEY=$DATADOG_APP_KEY
     script:
-        - /usr/local/datadog-static-analyzer -i . -o /home/gitlab-runner/report.sarif -f sarif
-        - datadog-ci sarif upload /home/gitlab-runner/report.sarif
-        - DATADOG_SITE=us5.datadoghq.com datadog-ci tag --level job --tags team:i3
 
 sca:
-    tags:
-        - datadog
     rules:
         - if: $CI_COMMIT_TAG =~ /^ocp/i
     stage: security-test 
-    before_script:
-        - export DD_SITE="us5.datadoghq.com"
-        - export DD_API_KEY=$DATADOG_API_KEY
-        - export DD_APP_KEY=$DATADOG_APP_KEY
     script:
-        - /osv-scanner/osv-scanner --skip-git -r --experimental-only-packages --format=cyclonedx-1-5 --paths-relative-to-scan-dir  --output=/home/gitlab-runner/sbom.json .
-        - datadog-ci sbom upload /home/gitlab-runner/sbom.json
-        - DATADOG_SITE=us5.datadoghq.com datadog-ci tag --level job --tags team:i3
 
 quality-gate:
-    tags:
-        - datadog
     rules:
         - if: $CI_COMMIT_TAG =~ /^ocp/i
     stage: security-test
     needs: ["sast", "sca"]
-    before_script:
-        - export DD_SITE="us5.datadoghq.com"
-        - export DD_API_KEY=$DATADOG_API_KEY
-        - export DD_APP_KEY=$DATADOG_APP_KEY
     script:
-        - datadog-ci gate evaluate
         
 build-and-push-image:
     tags:
-        - datadog
     stage: build
     only:
         - tags
@@ -61,11 +35,8 @@ build-and-push-image:
         - docker login --username=$NEXUS_USR --password=$NEXUS_PSW registry.i-3.my.id:5500
         - docker push registry.i-3.my.id:5500/mongection/mongection-app:$TAG
         - docker push registry.i-3.my.id:5500/mongection/mongection-db:$TAG
-        - DATADOG_SITE=us5.datadoghq.com datadog-ci tag --level job --tags team:i3
 
 deploy-to-ocp:
-    tags:
-        - datadog
     stage: deploy
     only:
         - tags
@@ -79,4 +50,3 @@ deploy-to-ocp:
         - oc login --token $OCP_TOKEN --server=https://api.lab.i-3.my.id:6443 --insecure-skip-tls-verify
         - oc apply -f deployment-app.yaml
         - oc apply -f deployment-db.yaml
-        - DATADOG_SITE=us5.datadoghq.com datadog-ci tag --level job --tags team:i3
