@@ -3,7 +3,6 @@ WORKDIR /usr/share/mongection
 ADD ./ /usr/share/mongection
 
 RUN apt-get update && \
-    npm install && \
-    npm install dd-trace@5.25.0 --save
+    npm install
 
-CMD node --require dd-trace/init src/app.js
+CMD node src/app.js
